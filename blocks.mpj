@@ -1,0 +1,87 @@
+<!-- 
+MyEdit Project File
+-->
+<project version="2.2" type="Project" name="blocks">
+
+    <!--     
+    Environment for this project
+    -->
+    <env eolMode="CRLF" backupDir="./bak" dir="C:\home\chrish\work\blocks"/>
+    
+    <!--     
+    Editor build commands mapped to function keys
+    -->
+    <build_cmds>
+        <cmd cmd="cmd /c pmake.bat" type="build"/>
+        <cmd cmd="None" type="rebuild"/>
+        <cmd cmd="cmd /c runit25.bat -p -d. " type="execute"/>
+        <cmd cmd="None" type="debug"/>
+        <cmd cmd="None" type="build_unit"/>
+        <cmd cmd="None" type="rebuild_unit"/>
+        <cmd cmd="cmd /c runit25.bat -p -d. blocks" type="execute_unit"/>
+        <cmd cmd="None" type="debug_unit"/>
+    </build_cmds>
+    
+    <!--     
+    Source Control
+    -->
+    <source_control_cmds>
+        <cmd cmd='python C:/bin/mycvs.py add "$file_dir"' type="add"/>
+        <cmd cmd="python C:/bin/mycvs.py cf $file_dir" type="check"/>
+        <cmd cmd='python C:/bin/mycvs.py ci -m "$msg" $file_dir' type="checkin"/>
+        <cmd cmd="python C:/bin/mycvs.py up $file_dir" type="update"/>
+    </source_control_cmds>
+    
+    <!--     
+    Per Project Configuration
+    -->
+    <project_configuration/>
+    
+    <!--     
+    Files in project
+    -->
+    <files>
+        <!--         
+        path is only required field
+        -->
+        <!-- &lt;file path="C:/bin/pylib/pylib/filter.py" file_cat="None" view="text" type="py" name="filter.py" prop=""/&gt; -->
+        <file name="blocks.py" file_cat="None" uri="None" prop="" path="blocks.py" type="py" view="text"/>
+        <file name="console.py" file_cat="None" uri="None" prop="" path="console.py" type="py" view="text"/>
+        <file name="display.py" file_cat="None" uri="None" prop="" path="display.py" type="py" view="text"/>
+        <file name="gui.py" file_cat="None" uri="None" prop="" path="gui.py" type="py" view="text"/>
+        <file name="board.py" file_cat="None" uri="None" prop="" path="board.py" type="py" view="text"/>
+        <file name="help.txt" file_cat="None" uri="None" prop="" path="help.txt" type="txt" view="text"/>
+        <file name="player.py" file_cat="None" uri="None" prop="" path="player.py" type="py" view="text"/>
+        <file name="computer_player.py" file_cat="None" uri="None" prop="" path="computer_player.py" type="py" view="text"/>
+    </files>
+    
+    <!--     
+    Subprojects within this project
+    -->
+    <projects>
+        <!-- &lt;sub_proj pathname=""/&gt; -->
+        <sub_proj pathname="c:\bin\pylib\pylib\pylib.mpj"/>
+    </projects>
+    
+    <!--     
+    Organizational display
+    -->
+    <categories>
+        <!--         
+        path is filter applied in file order
+        order is display order [1:-1]
+        -->
+        <!-- &lt;file_cat order="" name="" path=""/&gt; -->
+        <file_cat path="*.py" order="0" name="Source"/>
+        <file_cat path="*" order="0" name="Misc"/>
+    </categories>
+    
+    <helpFiles>
+        <helpfile path="C:\bin\pylib\pylib\html\index.html" help="chrish's pylib" desc="PyLib"/>
+        <helpfile path="C:\help\python26.chm.lnk" help="" desc="Python 2.6"/>
+        <helpfile path="C:\help\wxPython28.chm.lnk" help="" desc="wxPython"/>
+    </helpFiles>
+
+    <tools/>
+    <plugins/>
+</project>

@@ -1,0 +1,7 @@
+Rules:
+
+
+The game is composed of rounds. Each round consists of two sub rounds. The
+game ends when at the end of a round, one or both players have a score in
+excess 100 points and the scores are not equal.
+
