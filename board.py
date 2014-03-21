@@ -203,15 +203,35 @@ class PlayerData(object):
     """
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    def __init__(self):
+    def __init__(self, pd=None):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         super(PlayerData, self).__init__()
-        self.hist = []
-        self.score = 0
-        self.totScore =0
-        self.score_tray = {'-' : [], '=' : [], '@' : [], '*' : []}
-        self.blks = []
-        self.numUnique = 0
+	if pd is None:
+	    #self.hist = []
+	    self.score = 0
+	    self.totScore =0
+	    self.score_tray = {'-' : [], '=' : [], '@' : [], '*' : []}
+	    self.blks = []
+	    self.numUnique = 0
+        else:
+	    self.copy(pd)
+
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def copy(self, pd=None):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if pd is None:
+	    return PlayerData(self)
+
+        self.score = pd.score
+        self.totScore = pd.totScore
+        self.score_tray = {
+	    '-' : pd.score_tray['-'][:], 
+	    '=' : pd.score_tray['='][:], 
+	    '@' : pd.score_tray['@'][:], 
+	    '*' : pd.score_tray['*'][:], 
+	}
+        self.blks = pd.blks[:]
+        self.numUnique = pd.numUnique 
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def save(self, xn):
@@ -362,27 +382,37 @@ class PlayerData(object):
 class Deck(object):
 #-------------------------------------------------------------------------------
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    def __init__(self, shuffle=True):
+    def __init__(self, shuffle=True, deck=None):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         super(Deck, self).__init__()
-        
-        if USE_11:
-            self.deck0 = ['@0', '@1', '@2', '@3', '@4', '@5', '@6', '@7', '@8', '@9', '@z']
-            self.deck1 = ['*0', '*1', '*2', '*3', '*4', '*5', '*6', '*7', '*8', '*9', '*z']
-            self.deck2 = ['=0', '=1', '=2', '=3', '=4', '=5', '=6', '=7', '=8', '=9', '=z']
-            self.deck3 = ['-0', '-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-z']
-        else:   
-            self.deck0 = ['@0', '@1', '@2', '@3', '@4', '@5', '@6', '@7', '@8', '@9', '@x', '@y', '@z']
-            self.deck1 = ['*0', '*1', '*2', '*3', '*4', '*5', '*6', '*7', '*8', '*9', '*x', '*y', '*z']
-            self.deck2 = ['=0', '=1', '=2', '=3', '=4', '=5', '=6', '=7', '=8', '=9', '=x', '=y', '=z']
-            self.deck3 = ['-0', '-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-x', '-y', '-z']
 
-        self.d = []
-        for blk in self.deck0 + self.deck1 + self.deck2 + self.deck3:
-            self.d.append(Block(blk))
+	if deck is None:
+            if USE_11:
+                deck0 = ['@0', '@1', '@2', '@3', '@4', '@5', '@6', '@7', '@8', '@9', '@z']
+                deck1 = ['*0', '*1', '*2', '*3', '*4', '*5', '*6', '*7', '*8', '*9', '*z']
+                deck2 = ['=0', '=1', '=2', '=3', '=4', '=5', '=6', '=7', '=8', '=9', '=z']
+                deck3 = ['-0', '-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-z']
+            else:   
+                deck0 = ['@0', '@1', '@2', '@3', '@4', '@5', '@6', '@7', '@8', '@9', '@x', '@y', '@z']
+                deck1 = ['*0', '*1', '*2', '*3', '*4', '*5', '*6', '*7', '*8', '*9', '*x', '*y', '*z']
+                deck2 = ['=0', '=1', '=2', '=3', '=4', '=5', '=6', '=7', '=8', '=9', '=x', '=y', '=z']
+                deck3 = ['-0', '-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-x', '-y', '-z']
 
-        if shuffle:
-            self.shuffle()
+            self.d = []
+            for blk in deck0 + deck1 + deck2 + deck3:
+                self.d.append(Block(blk))
+
+            if shuffle:
+                self.shuffle()
+        else:
+	    self.copy(deck)
+
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def copy(self, deck=None):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if deck is None:
+	    return Deck(deck=self)
+        self.d = deck.d[:]
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def shuffle(self):
@@ -416,22 +446,44 @@ class Deck(object):
 class Board(object):
 #-------------------------------------------------------------------------------
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    def __init__(self, player1, player2, disp, startHandSize=7):
+    def __init__(self, player1, player2, disp, startHandSize=7, board=None):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        disp.brd = self
-        self.disp = disp
-        self.startHandSize = startHandSize
-        self.dd = Deck()
-        self.a = []
-        self.b = []
-        self.c = []
-        self.d = []
-        self.e = []
+        if board is None:
+            disp.brd = self
+            self.disp = disp
+            self.startHandSize = startHandSize
+            self.dd = Deck()
+            self.a = []
+            self.b = []
+            self.c = []
+            self.d = []
+            self.e = []
 
-        self.player1 = player1
-        self.player2 = player2
-        self.player1.pd = PlayerData()
-        self.player2.pd = PlayerData()
+            self.player1 = player1
+            self.player2 = player2
+            self.player1.pd = PlayerData()
+            self.player2.pd = PlayerData()
+        else:
+	    self.copy(board)    
+
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def copy(self, brd=None):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if brd is None:
+            return Board(None, None, None, None, self)
+
+        self.startHandSize = brd.startHandSize
+        self.dd = brd.dd.copy()
+        self.a = brd.a[:]
+        self.b = brd.b[:]
+        self.c = brd.c[:]
+        self.d = brd.d[:]
+        self.e = brd.e[:]
+
+        self.player1 = brd.player1
+        self.player2 = brd.player2
+        self.player1.pd = brd.player1.pd.copy()
+        self.player2.pd = brd.player2.pd.copy()
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def getRow(self, rowLetter):

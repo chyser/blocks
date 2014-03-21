@@ -157,6 +157,8 @@ class HumanPlayer(Player):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def move(self, b, lastMove, scd):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        sb = b.copy()
+
         while 1:
             b.display(self, b.blksLeft() == 0)
 
@@ -165,6 +167,10 @@ class HumanPlayer(Player):
             for cmd in cmdstr.split(';'):
                 if not cmd:
                     continue
+
+                if cmd == "redo":
+                    b.copy(sb)
+		    continue
 
                 if cmd == "help":
                     self.info(__doc__)
