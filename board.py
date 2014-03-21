@@ -33,9 +33,7 @@ else:
 
 
 def loadBlks(s):
-    if s: 
-        return [Block(str(c)) for c in s.split(',')]
-    return []
+    return [Block(str(c)) for c in s.split(',')] if s else []
 
 
 def saveBlks(blks):
@@ -49,55 +47,41 @@ def printBlks(c, blks):
 #-------------------------------------------------------------------------------
 class Block(object):
 #-------------------------------------------------------------------------------
-    if USE_11:
+    compt = {
+        ' ' : (None, '0'),
+        '@' : ('-', '='),
+        '*' : ('-', '='),
+        '-' : ('@', '*'),
+        '=' : ('@', '*'),
+        '0' : (None, '1'),
+        '1' : ('0', '2'),
+        '2' : ('1', '3'),
+        '3' : ('2', '4'),
+        '4' : ('3', '5'),
+        '5' : ('4', '6'),
+        '6' : ('5', '7'),
+        '7' : ('6', '8'),
+        '8' : ('7', '9'),
+        '9' : ('8', 'z'),
+        'z' : ('9', None),
+        }
+
+    values = {
+        '0' : 1,
+        '1' : 1,
+        '2' : 2,
+        '3' : 3,
+        '4' : 4,
+        '5' : 5,
+        '6' : 6,
+        '7' : 7,
+        '8' : 8,
+        '9' : 9,
+        'z' : 13,
+        }
+        
+    if not USE_11:
         compt = {
-            ' ' : (None, '0'),
-            '@' : ('-', '='),
-            '*' : ('-', '='),
-            '-' : ('@', '*'),
-            '=' : ('@', '*'),
-            '0' : (None, '1'),
-            '1' : ('0', '2'),
-            '2' : ('1', '3'),
-            '3' : ('2', '4'),
-            '4' : ('3', '5'),
-            '5' : ('4', '6'),
-            '6' : ('5', '7'),
-            '7' : ('6', '8'),
-            '8' : ('7', '9'),
-            '9' : ('8', 'z'),
-            'z' : ('9', None),
-            }
-    
-        values = {
-            '0' : 1,
-            '1' : 1,
-            '2' : 2,
-            '3' : 3,
-            '4' : 4,
-            '5' : 5,
-            '6' : 6,
-            '7' : 7,
-            '8' : 8,
-            '9' : 9,
-            'z' : 13,
-            }
-    else:
-        compt = {
-            ' ' : (None, '0'),
-            '@' : ('-', '='),
-            '*' : ('-', '='),
-            '-' : ('@', '*'),
-            '=' : ('@', '*'),
-            '0' : (None, '1'),
-            '1' : ('0', '2'),
-            '2' : ('1', '3'),
-            '3' : ('2', '4'),
-            '4' : ('3', '5'),
-            '5' : ('4', '6'),
-            '6' : ('5', '7'),
-            '7' : ('6', '8'),
-            '8' : ('7', '9'),
             '9' : ('8', 'x'),
             'x' : ('9', 'y'),
             'y' : ('x', 'z'),
@@ -105,16 +89,6 @@ class Block(object):
             }
     
         values = {
-            '0' : 1,
-            '1' : 1,
-            '2' : 2,
-            '3' : 3,
-            '4' : 4,
-            '5' : 5,
-            '6' : 6,
-            '7' : 7,
-            '8' : 8,
-            '9' : 9,
             'x' : 15,
             'y' : 20,
             'z' : 25
@@ -123,7 +97,7 @@ class Block(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def __init__(self, blockDesc):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        super(Block, self).__init__()
+        object.__init__(self)
         assert blockDesc[0] == '|' or (blockDesc[0] in self.compt and blockDesc[1] in self.compt)
         self.s = blockDesc
         self._lastrow = None
@@ -205,31 +179,30 @@ class PlayerData(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def __init__(self, pd=None):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        super(PlayerData, self).__init__()
-	if pd is None:
-	    #self.hist = []
-	    self.score = 0
-	    self.totScore =0
-	    self.score_tray = {'-' : [], '=' : [], '@' : [], '*' : []}
-	    self.blks = []
-	    self.numUnique = 0
-        else:
-	    self.copy(pd)
+        object.__init__(self)
+        if pd is not None:
+            return self.copy(pd)
+            
+        self.score = 0
+        self.totScore =0
+        self.score_tray = {'-' : [], '=' : [], '@' : [], '*' : []}
+        self.blks = []
+        self.numUnique = 0
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def copy(self, pd=None):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if pd is None:
-	    return PlayerData(self)
+            return PlayerData(self)
 
         self.score = pd.score
         self.totScore = pd.totScore
         self.score_tray = {
-	    '-' : pd.score_tray['-'][:], 
-	    '=' : pd.score_tray['='][:], 
-	    '@' : pd.score_tray['@'][:], 
-	    '*' : pd.score_tray['*'][:], 
-	}
+            '-' : pd.score_tray['-'][:], 
+            '=' : pd.score_tray['='][:], 
+            '@' : pd.score_tray['@'][:], 
+            '*' : pd.score_tray['*'][:], 
+        }
         self.blks = pd.blks[:]
         self.numUnique = pd.numUnique 
 
@@ -238,6 +211,7 @@ class PlayerData(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         p = xn.add('<pd score="%f" total="%f"/>' % (self.score, self.totScore))
         p.add('<blks>%s</blks>' % saveBlks(self.blks))
+        
         for c, stray in self.getSTrays():
             p.add('<stray name="%s">%s</stray>' % (c, saveBlks(stray)))
 
@@ -384,34 +358,24 @@ class Deck(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def __init__(self, shuffle=True, deck=None):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        super(Deck, self).__init__()
+        object.__init__(self)
 
-	if deck is None:
-            if USE_11:
-                deck0 = ['@0', '@1', '@2', '@3', '@4', '@5', '@6', '@7', '@8', '@9', '@z']
-                deck1 = ['*0', '*1', '*2', '*3', '*4', '*5', '*6', '*7', '*8', '*9', '*z']
-                deck2 = ['=0', '=1', '=2', '=3', '=4', '=5', '=6', '=7', '=8', '=9', '=z']
-                deck3 = ['-0', '-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-z']
-            else:   
-                deck0 = ['@0', '@1', '@2', '@3', '@4', '@5', '@6', '@7', '@8', '@9', '@x', '@y', '@z']
-                deck1 = ['*0', '*1', '*2', '*3', '*4', '*5', '*6', '*7', '*8', '*9', '*x', '*y', '*z']
-                deck2 = ['=0', '=1', '=2', '=3', '=4', '=5', '=6', '=7', '=8', '=9', '=x', '=y', '=z']
-                deck3 = ['-0', '-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-x', '-y', '-z']
+        if deck is not None:
+            return self.copy(deck)
+            
+        self.d = []
+        for s in "@*=-":
+            for c in "0123456789z" if USE_11 else "0123456789xyz":
+                self.d.append(Block(s + c))
 
-            self.d = []
-            for blk in deck0 + deck1 + deck2 + deck3:
-                self.d.append(Block(blk))
-
-            if shuffle:
-                self.shuffle()
-        else:
-	    self.copy(deck)
+        if shuffle:
+            self.shuffle()
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def copy(self, deck=None):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if deck is None:
-	    return Deck(deck=self)
+            return Deck(deck=self)
         self.d = deck.d[:]
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -441,6 +405,11 @@ class Deck(object):
         dn = bn.findChild('deck')
         self.d = loadBlks(dn.text)
 
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def __len__(self):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        return len(self.d)
+
 
 #-------------------------------------------------------------------------------
 class Board(object):
@@ -448,23 +417,25 @@ class Board(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def __init__(self, player1, player2, disp, startHandSize=7, board=None):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if board is None:
-            disp.brd = self
-            self.disp = disp
-            self.startHandSize = startHandSize
-            self.dd = Deck()
-            self.a = []
-            self.b = []
-            self.c = []
-            self.d = []
-            self.e = []
+        object.__init__(self)
+        
+        if board is not None:
+            return self.copy(board) 
+            
+        disp.brd = self
+        self.disp = disp
+        self.startHandSize = startHandSize
+        self.dd = Deck()
+        self.a = []
+        self.b = []
+        self.c = []
+        self.d = []
+        self.e = []
 
-            self.player1 = player1
-            self.player2 = player2
-            self.player1.pd = PlayerData()
-            self.player2.pd = PlayerData()
-        else:
-	    self.copy(board)    
+        self.player1 = player1
+        self.player2 = player2
+        self.player1.pd = PlayerData()
+        self.player2.pd = PlayerData()
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def copy(self, brd=None):
@@ -493,7 +464,7 @@ class Board(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def getRows(self):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        return [('a', self.a),('b', self.b),('c', self.c),('d', self.d), ('e', self.e)]
+        return [('a', self.a), ('b', self.b), ('c', self.c), ('d', self.d), ('e', self.e)]
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def save(self, xn):
@@ -516,7 +487,7 @@ class Board(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         """ return num blocks left in draw pile
         """
-        return len(self.dd.d)
+        return len(self.dd)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def startHand(self):
@@ -545,23 +516,30 @@ class Board(object):
             return '  '
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def printErr(self, s, silent):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if not silent:
+            self.disp.printInfo(s)
+            
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def score(self, p, blk, silent=0):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         assert isinstance(blk, Block)
 
         if self.willScore(blk):
             p.scoreBlk(blk)
-            return 1
-        else:
-            if not silent:
-                self.disp.printInfo("## block will not score")
-            return 0
+            return True
+        
+        self.printErr("## block will not score", silent)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def willScore(self, blk):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         assert isinstance(blk, Block)
-        if blk[1] == '0': return True
+        
+        if blk[1] == '0': 
+            return True
+            
         end2 = self.player2.pd.getST(blk[0])
         end1 = self.player1.pd.getST(blk[0])
         return end1.next() == blk or end2.next() == blk
@@ -571,7 +549,6 @@ class Board(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if isinstance(v, (str, unicode)):
             return self.getRow(v)
-        ###assert isinstance(v, list)
         return v
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -580,9 +557,8 @@ class Board(object):
         """ score any zeros
         """
         for blk in pp.blks:
-            if blk[1] == '0':
-                if self.score(pp, blk):
-                    pp.rmBlk(blk)
+            if blk[1] == '0' and self.score(pp, blk):
+                pp.rmBlk(blk)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def move(self, p, blk, row, silent=0):
@@ -593,19 +569,18 @@ class Board(object):
         if row == 's':
             if self.score(p, blk, silent):
                 p.rmBlk(blk)
-                return 1
-        else:
-            rw = self.ll(row)
-            end = rw[-1]
+                return True
+            return
+            
+        rw = self.ll(row)
+        end = rw[-1]
 
-            if end.compat(blk):
-                rw.append(blk)
-                p.rmBlk(blk)
-                return 1
-            else:
-                if not silent:
-                    self.disp.printInfo("## cannot put " + str(blk) + " on " + str(end))
-        return 0
+        if end.compat(blk):
+            rw.append(blk)
+            p.rmBlk(blk)
+            return True
+            
+        self.printErr("## cannot put " + str(blk) + " on " + str(end), silent)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def replace(self, p, blk, row0, row1, silent=0):
@@ -618,16 +593,12 @@ class Board(object):
         assert(blk[1] == 'z')
 
         if row0 == row1:
-            if not silent:
-                self.disp.printInfo("## rows not distinct")
-            return 0
+            return self.printErr("## rows not distinct", silent)
 
         rw0 = self.ll(row0)
         if row1 == 's':
             if len(rw0) != 1:
-                if not silent:
-                    self.disp.printInfo("## " + row0 + " len != 1")
-                return 0
+                return self.printErr("## " + row0 + " len != 1", silent)
 
             end0 = rw0[-1]
 
@@ -635,13 +606,13 @@ class Board(object):
                 del rw0[0]
                 rw0.append(blk)
                 p.rmBlk(blk)
-                return 1
-        else:
-            if self.moveList(p, row0, -1, row1, silent):
-                rw0.append(blk)
-                p.rmBlk(blk)
-                return 1
-        return 0
+                return True
+            return
+            
+        if self.moveList(p, row0, -1, row1, silent):
+            rw0.append(blk)
+            p.rmBlk(blk)
+            return True
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def moveEnd(self, p, row0, row1, check=True, silent=0):
@@ -650,34 +621,29 @@ class Board(object):
             top most element of a row
         """
         if row0 == row1:
-            if not silent:
-                self.disp.printInfo("## rows not distinct")
-            return 0
+            return self.printErr("## rows not distinct", silent)
 
         rw0 = self.ll(row0)
         if check and len(rw0) < 2:
-            if not silent:
-                self.disp.printInfo("## " + row0 + " : len < 2")
-            return 0
+            return self.printErr("## " + row0 + " : len < 2", silent)
 
         end0 = rw0[-1]
 
         if row1 == 's':
             if self.score(p, end0, silent):
                 del rw0[-1]
-                return 1
-        else:
-            rw1 = self.ll(row1)
-            end1 = rw1[-1]
+                return True
+            return
+            
+        rw1 = self.ll(row1)
+        end1 = rw1[-1]
 
-            if end1.compat(end0):
-                del rw0[-1]
-                rw1.append(end0)
-                return 1
-            else:
-                if not silent:
-                    self.disp.printInfo("## cannot put " + str(end0) + " with " + str(end1))
-                return 0
+        if end1.compat(end0):
+            del rw0[-1]
+            rw1.append(end0)
+            return True
+        
+        self.printErr("## cannot put " + str(end0) + " with " + str(end1), silent)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def moveEnd3(self, p, row0, row1, row2, silent=0):
@@ -685,7 +651,6 @@ class Board(object):
         """ move a z blk at end of row0 to top of row1, moving row1 to end of
             row2 or score
         """
-        #print "moveEnd3:", p, row0, row1, row2
         return self.moveList4(p, row0, -2, row1, row2, silent)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -694,16 +659,14 @@ class Board(object):
         """ move list starting a [row0,col] to end of row1
         """
         if row0 == row1:
-            return 0
+            return self.printErr("## rows not distinct", silent)
 
         rw0 = self.ll(row0)
         idx = getIdx(col, 1)
         try:
             blk = rw0[idx]
         except IndexError:
-            if not silent:
-                self.disp.printInfo("## - illegal block specified")
-            return 0
+            return self.printErr("## - illegal block specified", silent)
 
         rw1 = self.ll(row1)
         end1 = rw1[-1]
@@ -712,20 +675,20 @@ class Board(object):
         if end1.compat(blk):
             rw1.extend(rw0[idx:])
             del rw0[idx:]
-        else:
-            end0 = rw0[-1]
+            return True
+            
+        end0 = rw0[-1]
 
-            ## see if end of this list can move, if so unwind list
-            if end1.compat(end0):
-                while end0 != blk:
-                    self.moveEnd(p, row0, row1)
-                    end0 = rw0[-1]
-                self.moveEnd(p, row0, row1, check=False)
-            else:
-                if not silent:
-                    self.disp.printInfo("## block " + str(blk) + " not compatible with " + str(end0))
-                return 0
-        return 1
+        ## see if end of this list can move, if so unwind list
+        if end1.compat(end0):
+            while end0 != blk:
+                res = self.moveEnd(p, row0, row1, silent=silent)
+                assert res
+                end0 = rw0[-1]
+                
+            return self.moveEnd(p, row0, row1, check=False, silent=silent)
+            
+        self.printErr("## block " + str(blk) + " not compatible with " + str(end0), silent)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def moveList4(self, p, row0, col, row1, row2, silent=0):
@@ -735,9 +698,7 @@ class Board(object):
         """
         #print row0, col, row1, row2
         if row0 == row1 or row0 == row2 or row1 == row2:
-            if not silent:
-                self.disp.printInfo("## rows not distinct")
-            return 0
+            return self.printErr("## rows not distinct", silent)
 
         rw0 = self.ll(row0)
         idx = getIdx(col, 1)
@@ -745,38 +706,33 @@ class Board(object):
         try:
             blk = rw0[idx]
         except IndexError:
-            if not silent:
-                self.disp.printInfo("## - illegal block specified")
-            return 0
+            return self.printErr("## - illegal block specified", silent)
 
         if blk[1] != 'z':
-            if not silent:
-                self.disp.printInfo("## - list starts w/ blk not z")
-            return 0
+            return self.printErr("## - list starts w/ blk not z", silent)
 
         rw1 = self.ll(row1)
         if row2 == 's':
             if len(rw1) != 1:
-                if not silent:
-                    self.disp.printInfo("## " + row1 + " len != 1")
-                return 0
+                return self.printErr("## " + row1 + " len != 1", silent)
 
             blk1 = rw1[-1]
-            if self.score(p, blk1, silent):
-                del rw1[-1]
-                assert len(rw1) == 0
-                rw1.extend(rw0[idx:])
-                del rw0[idx:]
-                assert len(rw0) > 0
-                return 1
-        else:
-            if self.moveList(p, row1, -1, row2):
-                assert len(rw1) == 0
-                rw1.extend(rw0[idx:])
-                del rw0[idx:]
-                assert len(rw0) > 0
-                return 1
-        return 0
+            if not self.score(p, blk1, silent):
+                return
+                
+            del rw1[-1]
+            assert len(rw1) == 0
+            rw1.extend(rw0[idx:])
+            del rw0[idx:]
+            assert len(rw0) > 0
+            return True
+            
+        if self.moveList(p, row1, -1, row2):
+            assert len(rw1) == 0
+            rw1.extend(rw0[idx:])
+            del rw0[idx:]
+            assert len(rw0) > 0
+            return True
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def getEndBlks(self, typ='all'):
@@ -803,11 +759,11 @@ class Board(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         ans = []
         for r, row in self.getRows():
-	    for col, blk in enumerate(self.row):
-	        if ignCol0 and col == 0:
-		    continue
-	        if str(blk) in blks:
-		    ans.append((row, col, blk))
+            for col, blk in enumerate(self.row):
+                if ignCol0 and col == 0:
+                    continue
+                if str(blk) in blks:
+                    ans.append((row, col, blk))
         return ans
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -824,7 +780,7 @@ class Board(object):
             r[ii]
             return ii
         except (ValueError, IndexError):
-            return None
+            pass
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def validation(self, pd1, pd2):
