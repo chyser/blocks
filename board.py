@@ -33,11 +33,12 @@ else:
 
 
 def loadBlks(s):
+    s = s.strip()
     return [Block(str(c)) for c in s.split(',')] if s else []
 
 
 def saveBlks(blks):
-    return ','.join([str(s) for s in blks])
+    return ','.join([str(s) for s in blks]) + '\n' if blks else ''
 
 
 def printBlks(c, blks):
@@ -183,8 +184,7 @@ class PlayerData(object):
         if pd is not None:
             return self.copy(pd)
             
-        self.score = 0
-        self.totScore =0
+        self.rndScore = 0
         self.score_tray = {'-' : [], '=' : [], '@' : [], '*' : []}
         self.blks = []
         self.numUnique = 0
@@ -195,8 +195,7 @@ class PlayerData(object):
         if pd is None:
             return PlayerData(self)
 
-        self.score = pd.score
-        self.totScore = pd.totScore
+        self.rndScore = pd.rndScore
         self.score_tray = {
             '-' : pd.score_tray['-'][:], 
             '=' : pd.score_tray['='][:], 
@@ -209,7 +208,7 @@ class PlayerData(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def save(self, xn):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        p = xn.add('<pd score="%f" total="%f"/>' % (self.score, self.totScore))
+        p = xn.add('<pd rscore="%f"/>' % (self.rndScore))
         p.add('<blks>%s</blks>' % saveBlks(self.blks))
         
         for c, stray in self.getSTrays():
@@ -219,8 +218,7 @@ class PlayerData(object):
     def restore(self, p):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         pdn = p.findChild('pd')
-        self.score = float(pdn['score'])
-        self.totScore = float(pdn['total'])
+        self.rndScore = float(pdn['rscore'])
 
         bn = pdn.findChild('blks')
         self.blks = loadBlks(bn.text)
@@ -334,22 +332,30 @@ class PlayerData(object):
         self.sort()
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    def getScore(self):
-    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        return self.score
-
-    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def scoreBlk0(self, blk):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         assert isinstance(blk, Block)
         return blk.value() + 1
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def handValue(self):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	return sum([self.scoreBlk0(blk) for blk in self.blks])
+
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def numScores(self):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        l = 0
+	for v in self.score_tray.values():
+	    l += len(v)
+        return l
+
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def scoreBlk(self, blk):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         assert isinstance(blk, Block)
         self.score_tray[blk[0]].append(blk)
-        self.score += self.scoreBlk0(blk)
+        self.rndScore += self.scoreBlk0(blk)
 
 
 #-------------------------------------------------------------------------------
@@ -367,6 +373,10 @@ class Deck(object):
         for s in "@*=-":
             for c in "0123456789z" if USE_11 else "0123456789xyz":
                 self.d.append(Block(s + c))
+
+        if __debug__:
+	    global ALL_BLOCKS
+	    ALL_BLOCKS = set(self.d)
 
         if shuffle:
             self.shuffle()
@@ -557,7 +567,9 @@ class Board(object):
         """ score any zeros
         """
         for blk in pp.blks:
-            if blk[1] == '0' and self.score(pp, blk):
+            if blk[1] == '0': 
+	        res = self.score(pp, blk)
+		assert res
                 pp.rmBlk(blk)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -801,17 +813,15 @@ class Board(object):
         for b in pd2.score_tray.values():
             blks.extend(b)
 
-        if 0 and len(blks) != BLK_COUNT:
-            print('-'*50)
-            print(pd1.moves)
-            print('-'*20)
-            print(pd2.moves)
-        return len(blks) == BLK_COUNT
+        s = set(blks)
+        return len(blks) == BLK_COUNT and s == ALL_BLOCKS
+
 
 def showExec(s, loc, silent=1):
     if not silent:
         print(s)
     exec s in globals(), loc
+
 
 #-------------------------------------------------------------------------------
 def __test__(silent=True):

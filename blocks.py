@@ -57,6 +57,14 @@ DEBUG_DISPLAY_PAUSE = True
 
 POINTS_NEEDED_TO_WIN = 100
 
+PENALTY_TOO_MANY_BLOCKS = 1
+PENALTY_EARLY_BLOCK_HOLD_DIV = 3.1
+PENALTY_FINAL_BLOCK_HOLD_DIV = 1.9
+
+BONUS_EARLY_EMPTY_HAND_NO_SCORE = 11
+BONUS_EARLY_EMPTY_HAND = 3.5
+BONUS_FINAL_EMPTY_HAND = 2.5
+
 #-------------------------------------------------------------------------------
 def main(argv):
 #-------------------------------------------------------------------------------
@@ -106,7 +114,7 @@ class Game(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def __init__(self, p1=None, p2=None):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        super(Game, self).__init__()
+        object.__init__(self)
         self.score1 = self.score2 = 0
         self.rnd = 0
         self.blockLimit = 10
@@ -146,22 +154,22 @@ class Game(object):
 
             brd = None
 
-            if self.player1.score >= POINTS_NEEDED_TO_WIN and self.player2.score >= POINTS_NEEDED_TO_WIN:
-                if self.player1.score == self.player2.score:
+            if self.player1.gameScore >= POINTS_NEEDED_TO_WIN and self.player2.gameScore >= POINTS_NEEDED_TO_WIN:
+                if self.player1.gameScore == self.player2.gameScore:
                     continue
 
-                if self.player1.score > self.player2.score:
-                    self.display.printInfo("Player1 Winner: ", self.player1.score, self.player2.score)
+                if self.player1.gameScore > self.player2.gameScore:
+                    self.display.printInfo("Player1 Winner: %4.2f %4.2f" % (self.player1.gameScore, self.player2.gameScore))
                 else:
-                    self.display.printInfo("Player2 Winner: ", self.player2.score, self.player1.score)
+                    self.display.printInfo("Player2 Winner: %4.2f %4.2f" % (self.player2.gameScore, self.player1.gameScore))
                 return
 
-            if self.player1.score >= POINTS_NEEDED_TO_WIN:
-                self.display.printInfo("Player1 Winner: ", self.player1.score, self.player2.score)
+            if self.player1.gameScore >= POINTS_NEEDED_TO_WIN:
+                self.display.printInfo("Player1 Winner: %4.2f %4.2f" % (self.player1.gameScore, self.player2.gameScore))
                 return
 
-            if self.player2.score >= POINTS_NEEDED_TO_WIN:
-                self.display.printInfo("Player2 Winner: ", self.player2.score, self.player1.score)
+            if self.player2.gameScore >= POINTS_NEEDED_TO_WIN:
+                self.display.printInfo("Player2 Winner: %4.2f %4.2f" % (self.player2.gameScore, self.player1.gameScore))
                 return
                 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -181,9 +189,9 @@ class Game(object):
             brd = None
 
         ## if both are greater, finish round
-        if not (self.player1.score >= POINTS_NEEDED_TO_WIN and self.player2.score >= POINTS_NEEDED_TO_WIN):
+        if not (self.player1.gameScore >= POINTS_NEEDED_TO_WIN and self.player2.gameScore >= POINTS_NEEDED_TO_WIN):
             ## else round ends early if someone over
-            if self.player1.score >= POINTS_NEEDED_TO_WIN or self.player2.score >= POINTS_NEEDED_TO_WIN:
+            if self.player1.gameScore >= POINTS_NEEDED_TO_WIN or self.player2.gameScore >= POINTS_NEEDED_TO_WIN:
                 return    
             
         self.state = 2
@@ -272,42 +280,43 @@ class Game(object):
         self.player2.updateScore(b)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    def calcScore(self, pd, brd):
+    def calcScoreAdjustments(self, pd, brd):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        """ calculate the score based on the board and players hand
+        """ calculate score adjustments based on state of board and players hand
         """
-        ddiv = 3.1
+        ddiv = PENALTY_EARLY_BLOCK_HOLD_DIV
 
         ## see if player's hand is empty
-        if len(pd.blks) == 0:
+        nblks = pd.numBlks()
+
+        if nblks == 0:
             
             ## did the round finish early
             if brd.blksLeft() > 0:
                 ## special bonus for going out early with reward for
                 ## scoring no points while doing it
-                emptyHandBonus = 11 if pd.score == 0 else 3.5
+                emptyHandBonus = BONUS_EARLY_EMPTY_HAND_NO_SCORE if pd.numScores() == 0 else BONUS_EARLY_EMPTY_HAND
             else:
                 ## still value in emptying your hand even if last move
-                emptyHandBonus = 2.5
+                emptyHandBonus = BONUS_FINAL_EMPTY_HAND
 
             ## penalty is more severe if holding blocks at the end
-            ddiv = 1.9
+            ddiv = PENALTY_FINAL_BLOCK_HOLD_DIV
         else:
             emptyHandBonus = 0
 
         ## calculate penalty
-        penalty = max(len(pd.blks), sum([pd.scoreBlk0(blk) for blk in pd.blks])/ddiv)
+        penalty = max(nblks, pd.handValue()/ddiv)
 
         ## get total score
-        return pd.score + emptyHandBonus - penalty
+        return emptyHandBonus - penalty
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def checkForTurnPenalties(self, pd):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         """ there is a penalty for exceeding a maximum amount of blocks in hand 
         """
-        if len(pd.blks) >= self.blockLimit:
-            pd.score -= 1
+        return PENALTY_TOO_MANY_BLOCKS if pd.numBlks() >= self.blockLimit else 0
             
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def save(self, fn=None):

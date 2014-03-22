@@ -64,9 +64,9 @@ class Player(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def __init__(self, game, name=None):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        super(Player, self).__init__()
+        object.__init__(self)
         self.name = name
-        self.score = 0
+        self.gameScore = 0
         self.pd = None
         self.game = game
         self.disp = game.display
@@ -79,13 +79,13 @@ class Player(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def updateScore(self, brd):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        res = self.game.calcScore(self.pd, brd)
-        self.disp.printInfo(self.name, "Results = %5.2f" % res)
-        self.score += res
+        res = self.game.calcScoreAdjustments(self.pd, brd) + self.pd.rndScore
+        self.info(self.name, "Results = %5.2f" % res)
+        self.gameScore += res
 
         ## total score can't be negative
-        if self.score < 0:
-            self.score = 0
+        if self.gameScore < 0:
+            self.gameScore = 0
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def save(self, xn):
@@ -122,12 +122,13 @@ class Player(object):
         ## call player move
         self.move(b, lastMove, scd)
 
+	## can't end turn holding 0 blocks
         b.score0(self.pd)
 
         ## apply any per turn penalties (say too many blocks)
-        self.game.checkForTurnPenalties(self.pd)
+        self.pd.rndScore -= self.game.checkForTurnPenalties(self.pd)
 
-        if len(self.pd.blks) == 0:
+        if self.pd.numBlks() == 0:
             return True
 
         blk = b.dd.get()

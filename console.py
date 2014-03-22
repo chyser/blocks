@@ -45,8 +45,8 @@ class Console(display.Display):
             self.brd.gs(self.brd.player2.pd, '='),
             self.brd.gs(self.brd.player2.pd, '*'),
             self.brd.gs(self.brd.player2.pd, '@'),
-            self.brd.player2.pd.score,
-            self.brd.player2.score,
+            self.brd.player2.pd.rndScore,
+            self.brd.player2.gameScore,
             self.brd.player2.name))
             
         oss.writeln("[%s] [%s] [%s] [%s] - %3d/%6.2f  -- %s ***" % (
@@ -54,8 +54,8 @@ class Console(display.Display):
             self.brd.gs(self.brd.player1.pd, '='),
             self.brd.gs(self.brd.player1.pd, '*'),
             self.brd.gs(self.brd.player1.pd, '@'),
-            self.brd.player1.pd.score,
-            self.brd.player1.score,
+            self.brd.player1.pd.rndScore,
+            self.brd.player1.gameScore,
             self.brd.player1.name))
             
         oss.writeln("")

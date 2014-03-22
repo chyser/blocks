@@ -155,7 +155,7 @@ class ComputerPlayer(player.Player):
                     for r1 in 'abcde':
                         if r1 == row or not b.moveList(self.pd, row, bidx, r1, silent=1):
                             continue
-                        if b.moveEnd(self.pd, row, 's'):
+                        if b.moveEnd(self.pd, row, 's', silent=1):
                             break
 
             ## make simple moves
@@ -183,10 +183,10 @@ class ComputerPlayer(player.Player):
                             found = True
                 if not found: break
 
-            for i in range(random.randint(7, 111)):
+            for i in range(random.randint(7, 311)):
                 _, brow, bidx = b.getRandBlk()
                 _, erow, _ = b.getRandBlk()
-                if (b.moveList(self.pd, brow, bidx, erow, 1)):
+                if (b.moveList(self.pd, brow, bidx, erow, silent=1)):
                     moves.append('%s/%d moved to %s' % (brow, bidx, erow))
 
 
