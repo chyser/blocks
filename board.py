@@ -376,7 +376,7 @@ class Deck(object):
 
         if __debug__:
             global ALL_BLOCKS
-            ALL_BLOCKS = set(self.d)
+            ALL_BLOCKS = set([str(d) for d in self.d])
 
         if shuffle:
             self.shuffle()
@@ -796,6 +796,9 @@ class Board(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def validation(self, pd1, pd2):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        def ps(blk):
+            return str(blk)
+            
         blks = []
         blks.extend(self.a)
         blks.extend(self.b)
@@ -812,7 +815,17 @@ class Board(object):
         for b in pd2.score_tray.values():
             blks.extend(b)
 
-        s = set(blks)
+        s = set([str(d) for d in blks])
+        if len(blks) != BLK_COUNT:
+            print("block count wrong", len(blks), BLK_COUNT)
+            
+        if s != ALL_BLOCKS:
+            print('sets unequal')
+            print(s)
+            print(ALL_BLOCKS)
+            print(s - ALL_BLOCKS)
+            print(ALL_BLOCKS - s)
+            
         return len(blks) == BLK_COUNT and s == ALL_BLOCKS
 
 
