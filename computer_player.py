@@ -10,17 +10,25 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import random
+import time
+
 import player
 
 #-------------------------------------------------------------------------------
 class ComputerPlayer(player.Player):
 #-------------------------------------------------------------------------------
+    plyrNum = 0
+    
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    def __init__(self, game):
+    def __init__(self, name, typ):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        player.Player.__init__(self, game)
+        player.Player.__init__(self, name, typ)
+        ComputerPlayer.plyrNum += 1
+        
         self.numMoves = [0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-        self.otf = open('comp_log.txt', 'w')
+        self.otf = open('comp_log%d.txt' % ComputerPlayer.plyrNum, 'w')
+        self.log("Computer Player: %d\n" % ComputerPlayer.plyrNum)
+        self.log(time.ctime())
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def log(self, *arg):
@@ -189,24 +197,9 @@ class ComputerPlayer(player.Player):
                 if (b.moveList(self.pd, brow, bidx, erow, silent=1)):
                     moves.append('%s/%d moved to %s' % (brow, bidx, erow))
 
-
+                    
 #-------------------------------------------------------------------------------
-def __test__():
+def ObjectFactory(name):
 #-------------------------------------------------------------------------------
-    """
-    used for automated module testing. see L{tester}
-    """
-    #import pylib.tester as tester
-    return 0
-
-
-#-------------------------------------------------------------------------------
-if __name__ == "__main__":
-#-------------------------------------------------------------------------------
-    import pylib.osscripts as oss
-
-    args, opts = oss.gopt(oss.argv[1:], [], [], __test__.__doc__)
-
-
-    res = not __test__()
-    oss.exit(res)
+    return ComputerPlayer(name, 'computer')
+    

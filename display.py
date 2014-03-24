@@ -31,16 +31,41 @@ class Display(object):
         raise NotImplementedError()
         
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def lastMove(self, *args):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        self.printInfo("\n>>> LAST MOVE\n")
+        
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def getFileName(self, msg, exists):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         raise NotImplementedError()
         
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def CompPause(self, plyr):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        raise NotImplementedError()
+        
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def HideAll(self):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        raise NotImplementedError()
 
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def getPlayerName(self, msg):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        raise NotImplementedError()
+    
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def clear(self):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        raise NotImplementedError()
+    
+        
 #-------------------------------------------------------------------------------
 def DisplayFactory(dtype):
 #-------------------------------------------------------------------------------
     try:
-        mod = __import__(dtype)
+        mod = __import__(dtype + '_display')
     except ImportError:
         return
     return mod.ObjectFactory()

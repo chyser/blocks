@@ -340,14 +340,14 @@ class PlayerData(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def handValue(self):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	return sum([self.scoreBlk0(blk) for blk in self.blks])
+        return sum([self.scoreBlk0(blk) for blk in self.blks])
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def numScores(self):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         l = 0
-	for v in self.score_tray.values():
-	    l += len(v)
+        for v in self.score_tray.values():
+            l += len(v)
         return l
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -375,8 +375,8 @@ class Deck(object):
                 self.d.append(Block(s + c))
 
         if __debug__:
-	    global ALL_BLOCKS
-	    ALL_BLOCKS = set(self.d)
+            global ALL_BLOCKS
+            ALL_BLOCKS = set(self.d)
 
         if shuffle:
             self.shuffle()
@@ -568,8 +568,8 @@ class Board(object):
         """
         for blk in pp.blks:
             if blk[1] == '0': 
-	        res = self.score(pp, blk)
-		assert res
+                res = self.score(pp, blk)
+                assert res
                 pp.rmBlk(blk)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
