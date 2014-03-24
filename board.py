@@ -566,11 +566,10 @@ class Board(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         """ score any zeros
         """
-        for blk in pp.blks:
-            if blk[1] == '0': 
-                res = self.score(pp, blk)
-                assert res
-                pp.rmBlk(blk)
+        for blk in pp.findBlks('0'):
+            res = self.score(pp, blk)
+            assert res
+            pp.rmBlk(blk)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def move(self, p, blk, row, silent=0):

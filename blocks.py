@@ -63,8 +63,8 @@ def menu(disp):
         c = raw_input('> ')
 
         if c == '1':
-            p1 = player.PlayerFactory(self, 'human', disp.getPlayerName('Human Player:'))
-            p2 = player.PlayerFactory(self, 'computer', "Bytes")
+            p1 = player.PlayerFactory('human', disp.getPlayerName('Human Player:'))
+            p2 = player.PlayerFactory('computer', "Bytes")
             
             if random.random() <= 0.5:
                 game.Game(disp, p1, p2).play()
@@ -72,8 +72,8 @@ def menu(disp):
                 game.Game(disp, p2, p1).play()
             
         elif c == '2':
-            p1 = player.PlayerFactory(self, 'human', disp.getPlayerName('Human Player 1:'))
-            p2 = player.PlayerFactory(self, 'human', disp.getPlayerName('Human Player 2:'))
+            p1 = player.PlayerFactory('human', disp.getPlayerName('Human Player 1:'))
+            p2 = player.PlayerFactory('human', disp.getPlayerName('Human Player 2:'))
             game.Game(disp, p1, p2).play()
 
         elif c == '3':
