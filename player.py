@@ -1,37 +1,3 @@
-"""
-    cmds:
-        'r'         - rearrange the blocks
-        '.'         - end turn, but check for > 10
-        'n'         - end turn, take penalty for > 10
-        'qq'| exit  - leave game
-
-        - movements
-        [0-9][a-e]  - move block <num1> to end of row <letter2>
-        [a-e][a-e]  - move end block of row <letter1> to end of row <letter2>
-        [a-e][0-..][a-e] - move list specified by [a-e][0-] to end of row <letter3>
-
-        - score
-        '0'|'s'     - score the zero blocks in hand
-        [0-9]s      - score block <num> from hand
-        [a-e]s      - score end block from row
-
-        - head replacements
-        [0-9][a-e][a-e]  - move block <num> to head of row <letter2> and moving
-                           that row to end of specified row <letter3>
-        [a-e][a-e][a-e]  - move end block of row <letter1> to head of row <letter2>
-                           moving that row to end of row <letter3>
-        [0-9][a-e]s      - move block <num> to head of row <letter2> and scoring
-                           that block
-        [a-e][a-e]s      - move end block of row <letter1> to head of row <letter2>
-                           and scoring that block
-        [a-e][0-..][a-e][a-e] - move list specified by [a-e][0-] to head of row
-                                <letter3>, moving that row to end of row <letter4>
-        [a-e][0-..][a-e]s     - move list specified by [a-e][0-] to head of row
-                                <letter3>, scoring that block
-
-        *Note, the block moving to the head must be a 'z' block
-
-"""
 
 
 from __future__ import print_function
@@ -67,7 +33,6 @@ class Player(object):
         object.__init__(self)
         self.name = name
         self.gameScore = 0
-        self.pd = None
         self.game = None
         self.disp = None
         self.typ = typ
@@ -91,7 +56,8 @@ class Player(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def updateScore(self, brd):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        res = self.game.calcScoreAdjustments(self.pd, brd) + self.pd.rndScore
+        pd = brd.getPD(self)
+        res = self.game.calcScoreAdjustments(pd, brd) + pd.rndScore
         self.info(self.name, "Results = %5.2f" % res)
         self.gameScore += res
 
@@ -103,7 +69,6 @@ class Player(object):
     def save(self, xn):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        p = xn.add('<player name="%s"/>' % self.name)
-       self.pd.save(p)
        self.saveState(p)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -115,7 +80,6 @@ class Player(object):
     def restore(self, p):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         pn = p.findChild('player')
-        self.pd.restore(pn)
         self.name = pn['name']
         self.restoreState(pn)
 
@@ -125,31 +89,38 @@ class Player(object):
         return
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    def turn(self, b, lastMove=False, scd=False):
+    def getPD(self, brd):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        return brd.getPD(self)
+
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def turn(self, brd, lastMove=False, scd=False):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         """ handle moves necessary and return True if out of blocks, else false
         """
         self.game.save("stat.blk")
 
         ## call player move
-        self.move(b, lastMove, scd)
+        self.move(brd, lastMove, scd)
+
+        pd = brd.getPD(self)
 
         ## can't end turn holding 0 blocks
-        b.score0(self.pd)
+        brd.score0(pd)
 
         ## apply any per turn penalties (say too many blocks)
-        self.pd.rndScore -= self.game.checkForTurnPenalties(self.pd)
+        pd.rndScore -= self.game.checkForTurnPenalties(pd)
 
-        if self.pd.numBlks() == 0:
+        if pd.numBlks() == 0:
             return True
 
-        blk = b.dd.get()
+        blk = brd.dd.get()
         if blk:
-            self.pd.setBlk(blk)
+            pd.setBlk(blk)
         return False
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    def move(self, b):
+    def move(self, brd):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         raise NotImplementedError
 
@@ -159,9 +130,10 @@ class Player(object):
         self.disp.printInfo(*args)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    def getBlks(self, typ='play', order='low') :
+    def getBlks(self, brd, typ='play', order='low') :
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        return self.pd.getBlks(typ, order)
+        assert isinstance(brd, board.Board)
+        return self.getPD(brd).getBlks(typ, order)
 
 
 #-------------------------------------------------------------------------------

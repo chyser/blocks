@@ -444,8 +444,9 @@ class Board(object):
 
         self.player1 = player1
         self.player2 = player2
-        self.player1.pd = PlayerData()
-        self.player2.pd = PlayerData()
+
+        self.pd1 = PlayerData()
+        self.pd2 = PlayerData()
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def copy(self, brd=None):
@@ -463,8 +464,13 @@ class Board(object):
 
         self.player1 = brd.player1
         self.player2 = brd.player2
-        self.player1.pd = brd.player1.pd.copy()
-        self.player2.pd = brd.player2.pd.copy()
+        self.pd1 = brd.pd1.copy()
+        self.pd2 = brd.pd2.copy()
+
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def getPD(self, player):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        return self.pd1 if player is self.player1 else self.pd2
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def getRow(self, rowLetter):
@@ -506,11 +512,11 @@ class Board(object):
             row.append(self.dd.get())
 
         for i in range(self.startHandSize):
-            self.player2.pd.setBlk(self.dd.get())
-            self.player1.pd.setBlk(self.dd.get())
+            self.pd2.setBlk(self.dd.get())
+            self.pd1.setBlk(self.dd.get())
 
-        self.player2.pd.sort()
-        self.player1.pd.sort()
+        self.pd1.sort()
+        self.pd2.sort()
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def display(self, player, all):
@@ -550,8 +556,8 @@ class Board(object):
         if blk[1] == '0': 
             return True
             
-        end2 = self.player2.pd.getST(blk[0])
-        end1 = self.player1.pd.getST(blk[0])
+        end2 = self.pd2.getST(blk[0])
+        end1 = self.pd1.getST(blk[0])
         return end1.next() == blk or end2.next() == blk
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -794,7 +800,7 @@ class Board(object):
             pass
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    def validation(self, pd1, pd2):
+    def validation(self):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         def ps(blk):
             return str(blk)
@@ -807,12 +813,12 @@ class Board(object):
         blks.extend(self.e)
         blks.extend(self.dd.d)
 
-        blks.extend(pd1.blks)
-        blks.extend(pd2.blks)
+        blks.extend(self.pd1.blks)
+        blks.extend(self.pd2.blks)
 
-        for b in pd1.score_tray.values():
+        for b in self.pd1.score_tray.values():
             blks.extend(b)
-        for b in pd2.score_tray.values():
+        for b in self.pd2.score_tray.values():
             blks.extend(b)
 
         s = set([str(d) for d in blks])

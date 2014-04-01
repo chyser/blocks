@@ -159,7 +159,7 @@ class Game(object):
             else:
                 skip = False
 
-            assert b.validation(frst.pd, secd.pd)
+            assert b.validation()
 
             if self.allHuman:
                 self.display.HideAll()
@@ -182,7 +182,7 @@ class Game(object):
                 
             ## indicates that it is player 1's move next in the event of a saved game at this point
             self.sstate = 0
-            assert b.validation(frst.pd, secd.pd)
+            assert b.validation()
 
             if self.allHuman:
                 self.display.HideAll()
@@ -200,7 +200,7 @@ class Game(object):
         if not playerEmptiedHand:
             frst.turn(b, lastMove)
 
-        assert b.validation(frst.pd, secd.pd)
+        assert b.validation()
         self.display.display(None, True)
 
         self.sstate = 4

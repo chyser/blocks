@@ -1,7 +1,37 @@
 #!/usr/bin/env python
 """
-Library:
-    
+    cmds:
+        'r'         - rearrange the blocks
+        '.'         - end turn, but check for > 10
+        'n'         - end turn, take penalty for > 10
+        'qq'| exit  - leave game
+
+        - movements
+        [0-9][a-e]  - move block <num1> to end of row <letter2>
+        [a-e][a-e]  - move end block of row <letter1> to end of row <letter2>
+        [a-e][0-..][a-e] - move list specified by [a-e][0-] to end of row <letter3>
+
+        - score
+        '0'|'s'     - score the zero blocks in hand
+        [0-9]s      - score block <num> from hand
+        [a-e]s      - score end block from row
+
+        - head replacements
+        [0-9][a-e][a-e]  - move block <num> to head of row <letter2> and moving
+                           that row to end of specified row <letter3>
+        [a-e][a-e][a-e]  - move end block of row <letter1> to head of row <letter2>
+                           moving that row to end of row <letter3>
+        [0-9][a-e]s      - move block <num> to head of row <letter2> and scoring
+                           that block
+        [a-e][a-e]s      - move end block of row <letter1> to head of row <letter2>
+                           and scoring that block
+        [a-e][0-..][a-e][a-e] - move list specified by [a-e][0-] to head of row
+                                <letter3>, moving that row to end of row <letter4>
+        [a-e][0-..][a-e]s     - move list specified by [a-e][0-] to head of row
+                                <letter3>, scoring that block
+
+        *Note, the block moving to the head must be a 'z' block
+
 """
     
 from __future__ import print_function
@@ -21,6 +51,8 @@ class HumanPlayer(player.Player):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         sb = b.copy()
 
+        pd = self.getPD(b)
+        
         while 1:
             b.display(self, b.blksLeft() == 0)
 
@@ -46,7 +78,7 @@ class HumanPlayer(player.Player):
                     raise player.Notification('quit')
 
                 if cmd == '.':
-                    if len(self.pd.blks) >= 10:
+                    if len(pd.blks) >= 10:
                         self.info("cannot keep more than 10 blks");
                         self.info("use 'n' to accept penalty");
                         continue
@@ -58,56 +90,56 @@ class HumanPlayer(player.Player):
                     continue
 
                 if cmd == 'n':
-                    if len(self.pd.blks) >= 10:
+                    if len(pd.blks) >= 10:
                         self.info("cannot keep more than 10 blks");
                         self.info("exiting anyway w/ penalty");
                     return
 
                 elif cmd == '0' or cmd == 's':
-                    b.score0(self.pd)
+                    b.score0(pd)
 
                 elif cmd == 'r':
-                    self.pd.rearrange()
+                    pd.rearrange()
 
                 elif reb.eq(cmd, "[@*-=][0-9xyz][a-es]"):
                     blk = board.Block(cmd[:2])
-                    if self.pd.hasBlk(blk):
-                        b.move(self.pd, blk, cmd[2])
+                    if pd.hasBlk(blk):
+                        b.move(pd, blk, cmd[2])
                     else:
                         self.info('## - no such block' + cmd[:2])
 
                 elif reb.eq(cmd, "[0-9xyz][a-es]") or reb.eq(cmd, "[@*-=][a-es]"):
-                    blk = self.pd.findBlk(cmd[0])
+                    blk = pd.findBlk(cmd[0])
                     if blk:
-                        b.move(self.pd, blk, cmd[1])
+                        b.move(pd, blk, cmd[1])
                     else:
                         self.info("## ambiguous blk description")
 
                 elif reb.eq(cmd, "[@*-=][z][a-e][a-es]"):
                     blk = board.Block(cmd[:2])
-                    if self.pd.hasBlk(blk):
-                        b.replace(self.pd, blk, cmd[2], cmd[3])
+                    if pd.hasBlk(blk):
+                        b.replace(pd, blk, cmd[2], cmd[3])
                     else:
                         self.info('## - no such block' + cmd[:2])
 
                 elif reb.eq(cmd, "[z][a-e][a-es]"):
-                    blk = self.pd.findBlk(cmd[0])
+                    blk = pd.findBlk(cmd[0])
                     if blk:
-                        b.replace(self.pd, blk, cmd[1], cmd[2])
+                        b.replace(pd, blk, cmd[1], cmd[2])
                     else:
                         self.info("## ambiguous blk description")
 
                 elif reb.eq(cmd, "[a-e][a-es]"):
-                    b.moveEnd(self.pd, cmd[0], cmd[1])
+                    b.moveEnd(pd, cmd[0], cmd[1])
 
                 elif reb.eq(cmd, "[a-e][0-9f-v][a-e]"):
-                    b.moveList(self.pd, cmd[0], cmd[1], cmd[2])
+                    b.moveList(pd, cmd[0], cmd[1], cmd[2])
 
                 elif reb.eq(cmd, "[a-e][a-e][a-es]"):
-                    b.moveEnd3(self.pd, cmd[0], cmd[1], cmd[2])
+                    b.moveEnd3(pd, cmd[0], cmd[1], cmd[2])
 
                 elif reb.eq(cmd, "[a-e][0-9f-v][a-e][a-es]"):
-                    b.moveList4(self.pd, cmd[0], cmd[1], cmd[2], cmd[3])
+                    b.moveList4(pd, cmd[0], cmd[1], cmd[2], cmd[3])
 
                 else:
                     self.info("## - unknown cmd:", cmd)

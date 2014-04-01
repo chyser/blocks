@@ -37,12 +37,13 @@ class Console(display.Display):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         while 1:
             ch = raw_input(">> ")
+            pd = player.getPD(self.brd)
             try:
                 if ch[0] in "0123456789":
-                    return str(player.pd.blks[int(ch[0])]) + ch[1:]
+                    return str(pd.blks[int(ch[0])]) + ch[1:]
                     
                 if ch[0] == ',':
-                    return str(player.pd.blks[10]) + ch[1:]
+                    return str(pd.blks[10]) + ch[1:]
                     
                 return ch
             except IndexError:
@@ -66,50 +67,52 @@ class Console(display.Display):
         self.writeln("e: " + ' '.join([str(s) for s in self.brd.e]))
         
         self.writeln()
+        pd2 = self.brd.player2.getPD(self.brd)
         self.writeln("[%s] [%s] [%s] [%s] - %3d/%6.2f  -- %s" % (
-            self.brd.gs(self.brd.player2.pd, '-'),
-            self.brd.gs(self.brd.player2.pd, '='),
-            self.brd.gs(self.brd.player2.pd, '*'),
-            self.brd.gs(self.brd.player2.pd, '@'),
-            self.brd.player2.pd.rndScore,
+            self.brd.gs(pd2, '-'),
+            self.brd.gs(pd2, '='),
+            self.brd.gs(pd2, '*'),
+            self.brd.gs(pd2, '@'),
+            pd2.rndScore,
             self.brd.player2.gameScore,
             self.brd.player2.name))
             
+        pd1 = self.brd.player1.getPD(self.brd)
         self.writeln("[%s] [%s] [%s] [%s] - %3d/%6.2f  -- %s ***" % (
-            self.brd.gs(self.brd.player1.pd, '-'),
-            self.brd.gs(self.brd.player1.pd, '='),
-            self.brd.gs(self.brd.player1.pd, '*'),
-            self.brd.gs(self.brd.player1.pd, '@'),
-            self.brd.player1.pd.rndScore,
+            self.brd.gs(pd1, '-'),
+            self.brd.gs(pd1, '='),
+            self.brd.gs(pd1, '*'),
+            self.brd.gs(pd1, '@'),
+            pd1.rndScore,
             self.brd.player1.gameScore,
             self.brd.player1.name))
             
         self.writeln("")
         if p is None:
             if all:
-                self.writeln((' '.join([str(s) for s in self.brd.player2.pd.blks])) + ("  -- %s" % self.brd.player2.name))
-                self.writeln((' '.join([str(s) for s in self.brd.player1.pd.blks])) + ("  -- %s" % self.brd.player1.name))
+                self.writeln((' '.join([str(s) for s in pd2.blks])) + ("  -- %s" % self.brd.player2.name))
+                self.writeln((' '.join([str(s) for s in pd1.blks])) + ("  -- %s" % self.brd.player1.name))
             else:
-                self.writeln(('## '*(self.brd.player2.pd.numBlks())) + (" -- %s"  % self.brd.player2.name))
-                self.writeln(('## '*(self.brd.player1.pd.numBlks())) + (" -- %s"  % self.brd.player1.name))
-            s = max(self.brd.player1.pd.numBlks(), self.brd.player2.pd.numBlks())
+                self.writeln(('## '*(pd2.numBlks())) + (" -- %s"  % self.brd.player2.name))
+                self.writeln(('## '*(pd1.numBlks())) + (" -- %s"  % self.brd.player1.name))
+            s = max(pd1.numBlks(), pd2.numBlks())
             self.writeln(" 0  1  2  3  4  5  6  7  8  9  ,"[:s*3])
             
         elif p == self.brd.player1:
             if all:
-                self.writeln((' '.join([str(s) for s in self.brd.player2.pd.blks])) + ("  -- %s" % self.brd.player2.name))
+                self.writeln((' '.join([str(s) for s in pd2.blks])) + ("  -- %s" % self.brd.player2.name))
             else:
-                self.writeln(('## '*(self.brd.player2.pd.numBlks())) + (" -- %s"  % self.brd.player2.name))
-            self.writeln((' '.join([str(s) for s in self.brd.player1.pd.blks])) + ("  -- %s" % self.brd.player1.name))
-            self.writeln(" 0  1  2  3  4  5  6  7  8  9  ,"[:(self.brd.player1.pd.numBlks())*3])
+                self.writeln(('## '*(pd2.numBlks())) + (" -- %s"  % self.brd.player2.name))
+            self.writeln((' '.join([str(s) for s in pd1.blks])) + ("  -- %s" % self.brd.player1.name))
+            self.writeln(" 0  1  2  3  4  5  6  7  8  9  ,"[:(pd1.numBlks())*3])
                         
         elif p == self.brd.player2:
             if all:
-                self.writeln((' '.join([str(s) for s in self.brd.player1.pd.blks])) + ("  -- %s" % self.brd.player1.name))
+                self.writeln((' '.join([str(s) for s in pd1.blks])) + ("  -- %s" % self.brd.player1.name))
             else:
-                self.writeln(('## '*(self.brd.player1.pd.numBlks())) + (" -- %s"  % self.brd.player1.name))
-            self.writeln((' '.join([str(s) for s in self.brd.player2.pd.blks])) + ("  -- %s" % self.brd.player2.name))
-            self.writeln(" 0  1  2  3  4  5  6  7  8  9  ,"[:(self.brd.player2.pd.numBlks())*3])
+                self.writeln(('## '*(pd1.numBlks())) + (" -- %s"  % self.brd.player1.name))
+            self.writeln((' '.join([str(s) for s in pd2.blks])) + ("  -- %s" % self.brd.player2.name))
+            self.writeln(" 0  1  2  3  4  5  6  7  8  9  ,"[:(pd2.numBlks())*3])
         self.writeln()
         
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
