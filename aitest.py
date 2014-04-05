@@ -16,10 +16,12 @@ import game
 def main(argv):
 #-------------------------------------------------------------------------------
     """ options:
-            -s | --seed   : specify a seed for the random number generator
+            -s | --seed <seed>  : specify a seed for the random number generator
+            -t | --test <num>   : specify number of test runs
+            -n | --nolog        : do not create log files
             
     """
-    args, opts = oss.gopt(argv[1:], [], [('t', 'test'), ('s', 'seed')], __doc__)
+    args, opts = oss.gopt(argv[1:], [('n', 'nolog')], [('t', 'test'), ('s', 'seed')], __doc__)
 
     if opts.seed:
         sd = int(opts.seed)
@@ -39,6 +41,11 @@ def main(argv):
         idx += 1
         p1 = player.PlayerFactory('computer', "Bytes")
         p2 = player.PlayerFactory('computer', "Bits")
+
+        if opts.nolog:
+            p1.noLog()
+            p2.noLog()
+            
         game.Game(disp, p1, p2).play()
         
         if cnt and idx > cnt:

@@ -24,17 +24,36 @@ class ComputerPlayer(player.Player):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         player.Player.__init__(self, name, typ)
         ComputerPlayer.plyrNum += 1
-        
         self.numMoves = [0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-        self.otf = open('comp_log%d.txt' % ComputerPlayer.plyrNum, 'w')
-        self.log("Computer Player: %d\n" % ComputerPlayer.plyrNum)
-        self.log(time.ctime())
+        self.otf = None
 
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def noLog(self):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        self.log = self.nop
+    
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def log(self, *arg):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if self.otf is None:
+            self.otf = open('comp_log%d.txt' % ComputerPlayer.plyrNum, 'w')
+            self.log = self.log1
+            self.log1("Computer Player: %d\n" % ComputerPlayer.plyrNum)
+            self.log1(time.ctime())
+            self.log1(arg)
+        else:
+            assert(0)
+            
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def log1(self, *arg):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         self.otf.write(' '.join([str(a) for a in arg]) +'\n')
         self.otf.flush()
+    
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def nop(self, *args):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        pass
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def getNumMoves(self):

@@ -54,16 +54,25 @@ class Player(object):
         self.name = name
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    def updateScore(self, brd):
+    def getScore(self):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        return self.gameScore
+
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def updateScore(self, brd, extra=0):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         pd = brd.getPD(self)
-        res = self.game.calcScoreAdjustments(pd, brd) + pd.rndScore
+        res = self.game.calcScoreAdjustments(pd, brd) + pd.rndScore + extra
         self.info(self.name, "Results = %5.2f" % res)
         self.gameScore += res
 
+        res = 0
         ## total score can't be negative
         if self.gameScore < 0:
+            res = abs(self.gameScore)
             self.gameScore = 0
+        
+        return res
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def save(self, xn):
