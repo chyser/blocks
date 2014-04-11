@@ -59,6 +59,11 @@ class Player(object):
         return self.gameScore
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def addtoScore(self, val):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        self.gameScore += val
+
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def updateScore(self, brd, extra=0):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         pd = brd.getPD(self)

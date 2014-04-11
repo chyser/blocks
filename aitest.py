@@ -15,13 +15,14 @@ import game
 #-------------------------------------------------------------------------------
 def main(argv):
 #-------------------------------------------------------------------------------
-    """ options:
+    """ aitest.py [options]
+        options:
             -s | --seed <seed>  : specify a seed for the random number generator
             -t | --test <num>   : specify number of test runs
             -n | --nolog        : do not create log files
             
     """
-    args, opts = oss.gopt(argv[1:], [('n', 'nolog')], [('t', 'test'), ('s', 'seed')], __doc__)
+    args, opts = oss.gopt(argv[1:], [('n', 'nolog')], [('t', 'test'), ('s', 'seed')], main.__doc__)
 
     if opts.seed:
         sd = int(opts.seed)

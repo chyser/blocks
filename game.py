@@ -206,16 +206,28 @@ class Game(object):
         self.sstate = 4
         p1s = self.player1.getScore()
         p2s = self.player2.getScore()
+
+        ## handle both <0 differently
         if p1s <= 0 and p2s <= 0:
-            extra = 20
-            self.player1.updateScore(b, extra)
-            self.player2.updateScore(b, extra)
-        elif p1s <= 0:
-            extra = self.player1.updateScore(b)
-            self.player2.updateScore(b, extra)
+            r1 = self.player1.updateScore(b)
+            r2 = self.player2.updateScore(b)
+            
+            if not (r1 == 0 and r2 == 0):
+                if r1 > r2:
+                    self.player2.addtoScore(r1)
+                elif r2 > r1:
+                    self.player1.addtoScore(r2)
+                
+###        elif p1s <= 0:
+###            extra = self.player1.updateScore(b)
+###            self.player2.updateScore(b, extra)
+###        else:
+###            extra = self.player2.updateScore(b)
+###            self.player1.updateScore(b, extra)
         else:
-            extra = self.player2.updateScore(b)
-            self.player1.updateScore(b, extra)
+            self.player1.updateScore(b)
+            self.player2.updateScore(b)
+            
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def calcScoreAdjustments(self, pd, brd):
