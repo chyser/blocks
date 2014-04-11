@@ -61,7 +61,9 @@ MyEdit Project File
         <file name="help.txt" file_cat="None" uri="None" prop="" path="help.txt" type="txt" view="text"/>
         <file name="human_player.py" file_cat="None" uri="None" prop="" path="human_player.py" type="py" view="text"/>
         <file name="log_display.py" file_cat="None" uri="None" prop="" path="log_display.py" type="py" view="text"/>
+        <file name="nomove_player.py" file_cat="None" uri="None" prop="" path="nomove_player.py" type="py" view="text"/>
         <file name="player.py" file_cat="None" uri="None" prop="" path="player.py" type="py" view="text"/>
+        <file name="stats.py" file_cat="None" uri="None" prop="" path="stats.py" type="py" view="text"/>
     </files>
 
 

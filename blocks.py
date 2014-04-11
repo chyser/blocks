@@ -57,8 +57,9 @@ def menu(disp):
         print("Menu")
         print("     1) New Game: Human -vs- Machine")
         print("     2) New Game: Human -vs- Human")
-        print("     3) Restore Game")
-        print("     4) Quit")
+        print("     3) New Game: Human -vs- NoMove")
+        print("     4) Restore Game")
+        print("     5) Quit")
         print("")
         c = raw_input('> ')
 
@@ -75,11 +76,20 @@ def menu(disp):
             p1 = player.PlayerFactory('human', disp.getPlayerName('Human Player 1:'))
             p2 = player.PlayerFactory('human', disp.getPlayerName('Human Player 2:'))
             game.Game(disp, p1, p2).play()
-
+            
         elif c == '3':
-            game.Game(disp).restore()
+            p1 = player.PlayerFactory('human', disp.getPlayerName('Human Player:'))
+            p2 = player.PlayerFactory('nomove', "Nom")
+            
+            if random.random() <= 0.5:
+                game.Game(disp, p1, p2).play()
+            else:
+                game.Game(disp, p2, p1).play()
 
         elif c == '4':
+            game.Game(disp).restore()
+
+        elif c == '5':
             return
             
 

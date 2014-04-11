@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import pylib.xmlparse as xp
+import time
 
 import board
 import display
@@ -23,6 +24,8 @@ LIMIT_NUM_BLOCKS = 10
 PENALTY_TOO_MANY_BLOCKS = 1
 PENALTY_EARLY_BLOCK_HOLD_DIV = 3.1
 PENALTY_FINAL_BLOCK_HOLD_DIV = 1.9
+PENALTY_NEGATIVE_SCORE_LIMIT = 15
+PENALTY_NEGATIVE_SCORE_BONUS = 5
 
 BONUS_EARLY_EMPTY_HAND_NO_SCORE = 11
 BONUS_EARLY_EMPTY_HAND = 3.5
@@ -42,7 +45,13 @@ class Stats(object):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         object.__init__(self)
         self.numRounds = 0
+        self.scoreDiff = 0
         
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def __str__(self):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        return '%d, %5.2f' % (self.numRounds, self.scoreDiff)
+
                 
 #-------------------------------------------------------------------------------
 class Game(object):
@@ -57,6 +66,7 @@ class Game(object):
         
         self.state = self.sstate = 0
         self.display = display
+        self.stats = Stats()
 
         if p1 is not None:
             assert p2 is not None
@@ -68,6 +78,11 @@ class Game(object):
             p1.setGame(self)
             p2.setGame(self)
             
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def getStats(self):
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        return self.stats
+
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def play(self, brd=None):
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -90,15 +105,19 @@ class Game(object):
                     self.display.printInfo("Player1 Winner: %4.2f %4.2f" % (self.player1.gameScore, self.player2.gameScore))
                 else:
                     self.display.printInfo("Player2 Winner: %4.2f %4.2f" % (self.player2.gameScore, self.player1.gameScore))
-                return
+                break
 
             if self.player1.gameScore >= POINTS_NEEDED_TO_WIN:
                 self.display.printInfo("Player1 Winner: %4.2f %4.2f" % (self.player1.gameScore, self.player2.gameScore))
-                return
+                break
 
             if self.player2.gameScore >= POINTS_NEEDED_TO_WIN:
                 self.display.printInfo("Player2 Winner: %4.2f %4.2f" % (self.player2.gameScore, self.player1.gameScore))
-                return
+                break
+                
+        self.stats.numRounds = self.rnd
+        self.stats.scoreDiff = abs(self.player1.gameScore - self.player2.gameScore)
+        return self.stats
                 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def PlayRound(self, brd=None):
@@ -208,7 +227,7 @@ class Game(object):
         p2s = self.player2.getScore()
 
         ## handle both <0 differently
-        if p1s <= 0 and p2s <= 0:
+        if p1s <= 0 and p2s <= 0 and self.rnd != 1:
             r1 = self.player1.updateScore(b)
             r2 = self.player2.updateScore(b)
             
@@ -217,17 +236,17 @@ class Game(object):
                     self.player2.addtoScore(r1)
                 elif r2 > r1:
                     self.player1.addtoScore(r2)
-                
-###        elif p1s <= 0:
-###            extra = self.player1.updateScore(b)
-###            self.player2.updateScore(b, extra)
-###        else:
-###            extra = self.player2.updateScore(b)
-###            self.player1.updateScore(b, extra)
         else:
-            self.player1.updateScore(b)
-            self.player2.updateScore(b)
+            r1 = self.player1.updateScore(b)
+            r2 = self.player2.updateScore(b)
             
+            if r1 > PENALTY_NEGATIVE_SCORE_LIMIT:
+                if r2 < PENALTY_NEGATIVE_SCORE_LIMIT:
+                    self.player2.updateScore(b, r1 - PENALTY_NEGATIVE_SCORE_LIMIT + PENALTY_NEGATIVE_SCORE_BONUS)
+            
+            if r2 > PENALTY_NEGATIVE_SCORE_LIMIT:
+                if r1 < PENALTY_NEGATIVE_SCORE_LIMIT:
+                    self.player1.updateScore(b, r2 -  PENALTY_NEGATIVE_SCORE_LIMIT + PENALTY_NEGATIVE_SCORE_BONUS)
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def calcScoreAdjustments(self, pd, brd):

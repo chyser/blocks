@@ -20,9 +20,10 @@ def main(argv):
             -s | --seed <seed>  : specify a seed for the random number generator
             -t | --test <num>   : specify number of test runs
             -n | --nolog        : do not create log files
+            -N | --nomove       : play against no move player
             
     """
-    args, opts = oss.gopt(argv[1:], [('n', 'nolog')], [('t', 'test'), ('s', 'seed')], main.__doc__)
+    args, opts = oss.gopt(argv[1:], [('n', 'nolog'), ('N', 'nomove')], [('t', 'test'), ('s', 'seed')], main.__doc__)
 
     if opts.seed:
         sd = int(opts.seed)
@@ -37,17 +38,30 @@ def main(argv):
     
     cnt = int(opts.test) if opts.test else None
 
+    fn = "%s.data" % oss.DateFileName()
+    otf = open(fn, 'w')
+    print('Opening data file: %s' % fn)
+    
     idx = 0
     while 1:
         idx += 1
-        p1 = player.PlayerFactory('computer', "Bytes")
+        if not opts.nomove:
+            p1 = player.PlayerFactory('computer', "Bytes")
+            name = 'Bytes'
+        else:
+            name = 'nom'
+            p1 = player.PlayerFactory('nomove', "nom")
+            
         p2 = player.PlayerFactory('computer', "Bits")
 
         if opts.nolog:
             p1.noLog()
             p2.noLog()
             
-        game.Game(disp, p1, p2).play()
+        s = game.Game(disp, p1, p2).play()
+        otf.write('name: %s' % name)
+        otf.write('\t' + str(s) + '\n')
+        otf.flush()
         
         if cnt and idx > cnt:
             break
